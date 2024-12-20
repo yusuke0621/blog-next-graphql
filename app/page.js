@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { GraphQLClient, gql } from "graphql-request";
-import styles from "../styles/Home.modules.css"; // 必要に応じてスタイルファイルを追加
+import styles from "../styles/Home.module.css"; // 必要に応じてスタイルファイルを追加
 import BlogCard from "../components/BlogCard";
 
 const graphcms = new GraphQLClient(
@@ -15,6 +15,15 @@ const QUERY = gql`
       datePublish
       slug
       content
+      photo {
+        url
+      }
+      photo {
+        createdBy {
+          id
+        }
+        url
+      }
     }
     author(where: { id: "cm4vcamznrjh907n4eymqykvd" }) {
       name
@@ -29,7 +38,6 @@ export default async function Home() {
   // データを取得
   const data = await graphcms.request(QUERY);
   const { posts, author } = data;
-
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
@@ -38,9 +46,16 @@ export default async function Home() {
         </div>
         {/* 投稿リストのレンダリング */}
         <div>
-          {posts.map((post) => (
+          {posts.map((post, author) => (
             //
-            <BlogCard />
+            <BlogCard
+              photo={post.photo}
+              title={post.title}
+              author={author}
+              date={post.date}
+              slug={post.slug}
+              key={post.id}
+            />
           ))}
         </div>
         {/* 著者情報のレンダリング */}
